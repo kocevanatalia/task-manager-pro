@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
 function App() {
+  const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [task, setTask] = useState('');
   const [tasks, setTasks] = useState(() => {
@@ -40,11 +41,15 @@ function App() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
-  const filteredTasks = tasks.filter((t) => {
-    if (filter === 'active') return !t.completed;
-    if (filter === 'completed') return t.completed;
-    return true;
-  });
+  const filteredTasks = tasks
+    .filter((t) => {
+      if (filter === 'active') return !t.completed;
+      if (filter === 'completed') return t.completed;
+      return true;
+  })
+  .filter((t) => 
+  t.text.toLowerCase().includes(search.toLowerCase())
+  );
 
   const clearCompleted = () => {
     const activeTasks = tasks.filter((t) => !t.completed);
@@ -72,6 +77,15 @@ function App() {
           {tasks.length} task{tasks.length !== 1 ? 's' : ''}
         </p>
 
+        <input
+          type="text"
+          placeholder="Search tasks..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ marginTop: '20px', width: '100%', padding: '10px'}}
+        />
+
+        {/* FILTERS*/}
         <div className="filters">
           <button onClick={() => setFilter('all')}>All</button>
           <button onClick={() => setFilter('active')}>Active</button>
