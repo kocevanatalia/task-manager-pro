@@ -1,9 +1,22 @@
 import { useState, useEffect } from 'react';
 
 function App() {
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editText, setEditText] = useState('');
+
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved === 'true';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('darkMode', darkMode);
+  }, [darkMode]);
+
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [task, setTask] = useState('');
+
   const [tasks, setTasks] = useState(() => {
     const savedTasks = localStorage.getItem('tasks');
     return savedTasks ? JSON.parse(savedTasks) : [];
@@ -27,7 +40,7 @@ function App() {
   };
 
   const toggleComplete = (index) => {
-    const updatedTasks = tasks.map((t,i) => {
+    const updatedTasks = tasks.map((t, i) => {
       if (i === index) {
         return { ...t, completed: !t.completed };
       }
@@ -46,38 +59,69 @@ function App() {
       if (filter === 'active') return !t.completed;
       if (filter === 'completed') return t.completed;
       return true;
-  })
-  .filter((t) => 
-  t.text.toLowerCase().includes(search.toLowerCase())
-  );
+    })
+    .filter((t) =>
+      t.text.toLowerCase().includes(search.toLowerCase())
+    );
 
   const clearCompleted = () => {
     const activeTasks = tasks.filter((t) => !t.completed);
     setTasks(activeTasks);
   };
 
+  const startEditing = (index, currentText) => {
+    setEditingIndex(index);
+    setEditText(currentText);
+  };
+
+  const saveEdit = () => {
+    if (editText.trim() === '') return;
+
+    const updatedTasks = tasks.map((t, i) => {
+      if (i === editingIndex) {
+        return { ...t, text: editText };
+      }
+      return t;
+    });
+
+    setTasks(updatedTasks);
+    setEditingIndex(null);
+    setEditText('');
+  };
+
+  const cancelEdit = () => {
+    setEditingIndex(null);
+    setEditText('');
+  };
+
   return (
-    <div className="app">
+    <div className={darkMode ? 'app dark' : 'app'}>
       <div className="container">
+
+        <button
+          className="dark-toggle"
+          onClick={() => setDarkMode(!darkMode)}
+        >
+          {darkMode ? '☀️ Light' : '🌙 Dark'}
+        </button>
+
         <h1>Task Manager Pro</h1>
         <p className="subtitle">My improved React task manager</p>
 
         <div className="task-input-section">
-          <input 
-          type="text" 
-          placeholder="Enter a new task..."
-          value={task}
-          onChange={(e) => setTask(e.target.value)}
+          <input
+            type="text"
+            placeholder="Enter a new task..."
+            value={task}
+            onChange={(e) => setTask(e.target.value)}
           />
           <button onClick={handleAddTask}>Add</button>
         </div>
 
-        {/* TASK COUNTER */}
-        <p style={{marginTop: '16px', color: '#666' }}>
+        <p style={{ marginTop: '16px', color: '#666' }}>
           {tasks.length} task{tasks.length !== 1 ? 's' : ''}
         </p>
 
-        {/*SEARCH */}
         <input
           className="search-input"
           type="text"
@@ -86,22 +130,27 @@ function App() {
           onChange={(e) => setSearch(e.target.value)}
         />
 
-        {/* FILTERS*/}
         <div className="filters">
-          <button className={filter === 'all' ? 'active-filter' : ''}
-            onClick={() => setFilter('all')}>
+          <button
+            className={filter === 'all' ? 'active-filter' : ''}
+            onClick={() => setFilter('all')}
+          >
             All
           </button>
 
-          <button 
+          <button
             className={filter === 'active' ? 'active-filter' : ''}
-            onClick={() => setFilter('active')}>
-              Active
-              </button>
-          <button className={filter === 'completed' ? 'active-filter' : ''}
-            onClick={() => setFilter('completed')}>
-              Completed
-              </button>
+            onClick={() => setFilter('active')}
+          >
+            Active
+          </button>
+
+          <button
+            className={filter === 'completed' ? 'active-filter' : ''}
+            onClick={() => setFilter('completed')}
+          >
+            Completed
+          </button>
         </div>
 
         {tasks.some((t) => t.completed) && (
@@ -110,29 +159,52 @@ function App() {
           </button>
         )}
 
-        {/* TASK LIST*/}
         {tasks.length === 0 ? (
           <p style={{ marginTop: '20px', color: '#999' }}>
             No tasks yet. Add one above 👆
           </p>
         ) : (
-          <ul style={{ marginTop: '20px', listStyle: 'none', padding: 0}}>
-            {filteredTasks.map((t,index) => (
+          <ul style={{ marginTop: '20px', listStyle: 'none', padding: 0 }}>
+            {filteredTasks.map((t, index) => (
               <li key={index} className="task-item">
 
                 <div className="left">
                   <input
-                  type="checkbox"
-                  checked={t.completed}
-                  onChange={() => toggleComplete(index)}
+                    type="checkbox"
+                    checked={t.completed}
+                    onChange={() => toggleComplete(index)}
                   />
 
-                  <span className={t.completed ? 'completed' : ''}>
-                    {t.text}
-                  </span>
+                  {editingIndex === index ? (
+                    <input
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') saveEdit();
+                      }}
+                      autoFocus
+                    />
+                  ) : (
+                    <span className={t.completed ? 'completed' : ''}>
+                      {t.text}
+                    </span>
+                  )}
                 </div>
 
-                <button onClick={() => handleDelete(index)}>❌</button>
+                <div>
+                  {editingIndex === index ? (
+                    <>
+                      <button onClick={saveEdit}>💾</button>
+                      <button onClick={cancelEdit}>❌</button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={() => startEditing(index, t.text)}>✏️</button>
+                      <button onClick={() => handleDelete(index)}>🗑</button>
+                    </>
+                  )}
+                </div>
+
               </li>
             ))}
           </ul>

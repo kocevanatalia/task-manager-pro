@@ -150,3 +150,50 @@ h1 {
 .task-item:hover {
   background: #fafafa;
 }
+
+.dark {
+  background-color: #121212;
+  color: white;
+}
+
+.dark .container {
+  background: #1e1e1e;
+}
+
+.dark input {
+  background: #2a2a2a;
+  color: white;
+  border: 1px solid #444;
+}
+
+.dark .search-input {
+  background: #2a2a2a;
+  color: white;
+}
+
+.dark button {
+  color: white;
+}
+
+.dark .task-item:hover {
+  background: #2a2a2a;
+}
+
+.dark .active-filter {
+  background: white !important;
+  color: black;
+}
+
+.dark-toggle {
+  margin-bottom: 20px;
+  border: none;
+  background: #eee;
+  padding: 8x 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.dark .dark-toggle {
+  background: #333;
+  color: white;
+}
