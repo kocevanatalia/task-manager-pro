@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
 function App() {
+  const [filter, setFilter] = useState('all');
   const [task, setTask] = useState('');
   const [tasks, setTasks] = useState(() => {
     const savedTasks = localStorage.getItem('tasks');
@@ -39,6 +40,17 @@ function App() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
+  const filteredTasks = tasks.filter((t) => {
+    if (filter === 'active') return !t.completed;
+    if (filter === 'completed') return t.completed;
+    return true;
+  });
+
+  const clearCompleted = () => {
+    const activeTasks = tasks.filter((t) => !t.completed);
+    setTasks(activeTasks);
+  };
+
   return (
     <div className="app">
       <div className="container">
@@ -60,6 +72,18 @@ function App() {
           {tasks.length} task{tasks.length !== 1 ? 's' : ''}
         </p>
 
+        <div className="filters">
+          <button onClick={() => setFilter('all')}>All</button>
+          <button onClick={() => setFilter('active')}>Active</button>
+          <button onClick={() => setFilter('completed')}>Completed</button>
+        </div>
+
+        {tasks.some((t) => t.completed) && (
+          <button className="clear-btn" onClick={clearCompleted}>
+            Clear completed
+          </button>
+        )}
+
         {/* TASK LIST*/}
         {tasks.length === 0 ? (
           <p style={{ marginTop: '20px', color: '#999' }}>
@@ -67,7 +91,7 @@ function App() {
           </p>
         ) : (
           <ul style={{ marginTop: '20px', listStyle: 'none', padding: 0}}>
-            {tasks.map((t,index) => (
+            {filteredTasks.map((t,index) => (
               <li key={index} className="task-item">
 
                 <div className="left">
