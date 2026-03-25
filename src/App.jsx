@@ -77,19 +77,31 @@ function App() {
           {tasks.length} task{tasks.length !== 1 ? 's' : ''}
         </p>
 
+        {/*SEARCH */}
         <input
+          className="search-input"
           type="text"
           placeholder="Search tasks..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ marginTop: '20px', width: '100%', padding: '10px'}}
         />
 
         {/* FILTERS*/}
         <div className="filters">
-          <button onClick={() => setFilter('all')}>All</button>
-          <button onClick={() => setFilter('active')}>Active</button>
-          <button onClick={() => setFilter('completed')}>Completed</button>
+          <button className={filter === 'all' ? 'active-filter' : ''}
+            onClick={() => setFilter('all')}>
+            All
+          </button>
+
+          <button 
+            className={filter === 'active' ? 'active-filter' : ''}
+            onClick={() => setFilter('active')}>
+              Active
+              </button>
+          <button className={filter === 'completed' ? 'active-filter' : ''}
+            onClick={() => setFilter('completed')}>
+              Completed
+              </button>
         </div>
 
         {tasks.some((t) => t.completed) && (

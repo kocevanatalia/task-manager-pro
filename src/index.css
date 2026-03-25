@@ -45,9 +45,14 @@ h1 {
 .task-input-section input {
   flex: 1;
   padding: 14px;
-  border: 1px solid #dcdcdc;
+  border: 1px solid #ddd;
   border-radius: 10px;
   font-size: 1rem;
+  outline: none;
+}
+
+.task-input-section input:focus {
+  border-color: #222;
 }
 
 .task-input-section button {
@@ -107,6 +112,11 @@ h1 {
   background: #ddd;
 }
 
+.active-filter {
+  background: #222 !important;
+  color: white;
+}
+
 .clear-btn {
   margin-top: 10px;
   background: transparent;
@@ -118,4 +128,25 @@ h1 {
 
 .clear-btn:hover {
   text-decoration: underline;
+}
+
+.search-input {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #222;
+}
+
+.task-item {
+  transition: all 0.2s ease;
+}
+
+.task-item:hover {
+  background: #fafafa;
 }
