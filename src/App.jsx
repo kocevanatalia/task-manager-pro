@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 
 function App() {
-  const [editingIndex, setEditingIndex] = useState(null);
+  const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState('');
   const [editNote, setEditNote] = useState('');
-  const [editingNoteIndex, setEditingNoteIndex] = useState(null);
+  const [editingNoteId, setEditingNoteId] = useState(null);
 
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
@@ -18,6 +18,7 @@ function App() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [task, setTask] = useState('');
+  const [dueDate, setDueDate] = useState('');
 
   const [tasks, setTasks] = useState(() => {
     const savedTasks = localStorage.getItem('tasks');
@@ -27,30 +28,27 @@ function App() {
   const handleAddTask = () => {
     if (task.trim() === '') return;
 
-
     const newTask = {
+      id: Date.now(),
       text: task,
       completed: false,
       note: '',
+      dueDate: dueDate,
     };
 
     setTasks([...tasks, newTask]);
     setTask('');
+    setDueDate('');
   };
 
-  const handleDelete = (index) => {
-    const newTasks = tasks.filter((_, i) => i !== index);
-    setTasks(newTasks);
+  const handleDelete = (id) => {
+    setTasks(tasks.filter((t) => t.id !== id));
   };
 
-  const toggleComplete = (index) => {
-    const updatedTasks = tasks.map((t, i) => {
-      if (i === index) {
-        return { ...t, completed: !t.completed };
-      }
-      return t;
-    });
-
+  const toggleComplete = (id) => {
+    const updatedTasks = tasks.map((t) =>
+      t.id === id ? { ...t, completed: !t.completed } : t
+    );
     setTasks(updatedTasks);
   };
 
@@ -69,56 +67,59 @@ function App() {
     );
 
   const clearCompleted = () => {
-    const activeTasks = tasks.filter((t) => !t.completed);
-    setTasks(activeTasks);
+    setTasks(tasks.filter((t) => !t.completed));
   };
 
-  const startEditing = (index, currentText) => {
-    setEditingIndex(index);
+  const startEditing = (id, currentText) => {
+    setEditingId(id);
     setEditText(currentText);
   };
 
   const saveEdit = () => {
     if (editText.trim() === '') return;
 
-    const updatedTasks = tasks.map((t, i) => {
-      if (i === editingIndex) {
-        return { ...t, text: editText };
-      }
-      return t;
-    });
+    const updatedTasks = tasks.map((t) =>
+      t.id === editingId ? { ...t, text: editText } : t
+    );
 
     setTasks(updatedTasks);
-    setEditingIndex(null);
+    setEditingId(null);
     setEditText('');
   };
 
   const cancelEdit = () => {
-    setEditingIndex(null);
+    setEditingId(null);
     setEditText('');
   };
 
-  const startEditingNote = (index, currentNote) => {
-    setEditingNoteIndex(index);
+  const startEditingNote = (id, currentNote) => {
+    setEditingNoteId(id);
     setEditNote(currentNote || '');
   };
 
   const saveNote = () => {
-    const updatedTasks = tasks.map((t,i) => {
-      if (i === editingNoteIndex) {
-        return {...t, note: editNote};
-      }
-      return t;
-    });
+    const updatedTasks = tasks.map((t) =>
+      t.id === editingNoteId ? { ...t, note: editNote } : t
+    );
 
     setTasks(updatedTasks);
-    setEditingNoteIndex(null);
+    setEditingNoteId(null);
     setEditNote('');
   };
 
   const cancelNote = () => {
-    setEditingNoteIndex(null);
+    setEditingNoteId(null);
     setEditNote('');
+  };
+
+  const isOverdue = (task) => {
+    if (!task.dueDate || task.completed) return false;
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    const taskDate = new Date(task.dueDate);
+    return taskDate < today;
   };
 
   return (
@@ -141,6 +142,15 @@ function App() {
             placeholder="Enter a new task..."
             value={task}
             onChange={(e) => setTask(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleAddTask();
+            }}
+          />
+
+          <input 
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
           />
           <button onClick={handleAddTask}>Add</button>
         </div>
@@ -192,17 +202,17 @@ function App() {
           </p>
         ) : (
           <ul style={{ marginTop: '20px', listStyle: 'none', padding: 0 }}>
-            {filteredTasks.map((t, index) => (
-              <li key={index} className="task-item">
+            {filteredTasks.map((t) => (
+              <li key={t.id} className="task-item">
 
                 <div className="left">
                   <input
                     type="checkbox"
                     checked={t.completed}
-                    onChange={() => toggleComplete(index)}
+                    onChange={() => toggleComplete(t.id)}
                   />
 
-                  {editingIndex === index ? (
+                  {editingId === t.id ? (
                     <input
                       value={editText}
                       onChange={(e) => setEditText(e.target.value)}
@@ -212,33 +222,40 @@ function App() {
                       autoFocus
                     />
                   ) : (
-                    <span className={t.completed ? 'completed' : ''}>
-                      {t.text}
-                    </span>
+                    <div>
+                      <span className={t.completed ? 'completed' : ''}>
+                        {t.text}
+                      </span>
+                      {t.dueDate && (
+                        <p className={isOverdue(t) ? 'due-date overdue' : 'due-date'}> 
+                          Due: {t.dueDate} {isOverdue(t) && '• Overdue'}
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
 
                 <div>
-                  {editingIndex === index ? (
+                  {editingId === t.id ? (
                     <>
                       <button onClick={saveEdit}>💾</button>
                       <button onClick={cancelEdit}>❌</button>
                     </>
                   ) : (
                     <>
-                      <button onClick={() => startEditing(index, t.text)}>✏️</button>
-                      <button onClick={() => handleDelete(index)}>🗑</button>
+                      <button onClick={() => startEditing(t.id, t.text)}>✏️</button>
+                      <button onClick={() => handleDelete(t.id)}>🗑</button>
                     </>
                   )}
                 </div>
 
                 <div className="note-section">
-                  {editingNoteIndex === index ? (
+                  {editingNoteId === t.id ? (
                     <>
-                    <textarea
-                      value={editNote}
-                      onChange={(e) => setEditNote(e.target.value)}
-                      placeholder="Add a note..."
+                      <textarea
+                        value={editNote}
+                        onChange={(e) => setEditNote(e.target.value)}
+                        placeholder="Add a note..."
                       />
                       <button onClick={saveNote}>💾</button>
                       <button onClick={cancelNote}>❌</button>
@@ -246,12 +263,11 @@ function App() {
                   ) : (
                     <>
                       {t.note && <p className="note">{t.note}</p>}
-                      <button onClick={() => startEditingNote(index, t.note)}>
+                      <button onClick={() => startEditingNote(t.id, t.note)}>
                         📝 Note
                       </button>
                     </>
                   )}
-                  
                 </div>
 
               </li>

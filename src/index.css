@@ -88,7 +88,7 @@ h1 {
 }
 
 .task-item button {
-  background: trasnparent;
+  background: transparent;
   border: none;
   cursor: pointer;
   font-size: 1rem;
@@ -188,7 +188,7 @@ h1 {
   margin-bottom: 20px;
   border: none;
   background: #eee;
-  padding: 8x 12px;
+  padding: 8px 12px;
   border-radius: 8px;
   cursor: pointer;
 }
@@ -196,4 +196,42 @@ h1 {
 .dark .dark-toggle {
   background: #333;
   color: white;
+}
+
+
+.task-input-section input[type="date"] {
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.task-input-section input[type="date"]:focus {
+  border-color: #222;
+}
+
+.dark .task-input-section input[type="date"] {
+  background: #2a2a2a;
+  color: white;
+  border: 1px solid #444;
+}
+
+.due-date {
+  font-size: 0.85rem;
+  color: #777;
+  margin-top: 4px;
+}
+
+.due-date.overdue {
+  color: #d11a2a;
+  font-weight: 600;
+}
+
+.dark .due-date {
+  color: #bbb;
+}
+
+.dark .due-date.overdue {
+  color: #ff6b6b;
 }
