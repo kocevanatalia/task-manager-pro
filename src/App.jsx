@@ -6,149 +6,11 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
-import { CSS } from '@dnd-kit/utilities';
-import { useSortable } from '@dnd-kit/sortable';
 
-function SortableTaskItem({
-  t,
-  editingId,
-  editText,
-  setEditText,
-  saveEdit,
-  cancelEdit,
-  toggleComplete,
-  startEditing,
-  handleDelete,
-  editingNoteId,
-  editNote,
-  setEditNote,
-  saveNote,
-  cancelNote,
-  startEditingNote,
-  isOverdue,
-  editDueDate,
-  setEditDueDate,
-  editPriority,
-  setEditPriority,
-}) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id: t.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <li ref={setNodeRef} style={style} className="task-item">
-      <div className="left">
-        <span
-          {...attributes}
-          {...listeners}
-          style={{ cursor: 'grab', marginRight: '10px' }}
-        >
-          ☰
-        </span>
-
-        <input
-          type="checkbox"
-          checked={t.completed}
-          onChange={() => toggleComplete(t.id)}
-        />
-
-        {editingId === t.id ? (
-          <div className="edit-fields">
-            <input
-              value={editText}
-              onChange={(e) => setEditText(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') saveEdit();
-                if (e.key === 'Escape') cancelEdit();
-              }}
-              autoFocus
-            />
-            <input
-              type="date"
-              value={editDueDate}
-              onChange={(e) => setEditDueDate(e.target.value)}
-            />
-
-            <select 
-              value={editPriority}
-              onChange={(e) => setEditPriority(e.target.value)}
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
-
-          </div>
-        ) : (
-          <div>
-            <span className={t.completed ? 'completed' : ''}>
-              {t.text}
-            </span>
-
-            {t.priority && (
-              <div>
-                <span className={`priority-badge ${t.priority}`}>
-                  {t.priority}
-                </span>
-              </div>
-            )}
-
-            {t.dueDate && (
-              <p className={isOverdue(t) ? 'due-date overdue' : 'due-date'}>
-                Due: {t.dueDate} {isOverdue(t) && '• Overdue'}
-              </p>
-            )}
-    
-          </div>
-        )}
-      </div>
-
-      <div>
-        {editingId === t.id ? (
-          <>
-            <button onClick={saveEdit}>💾</button>
-            <button onClick={cancelEdit}>❌</button>
-          </>
-        ) : (
-          <>
-            <button onClick={() => startEditing(t.id, t.text, t.dueDate, t.priority)}>✏️</button>
-            <button onClick={() => handleDelete(t.id)}>🗑</button>
-          </>
-        )}
-      </div>
-
-      <div className="note-section">
-        {editingNoteId === t.id ? (
-          <>
-            <textarea
-              value={editNote}
-              onChange={(e) => setEditNote(e.target.value)}
-              placeholder="Add a note..."
-            />
-          <button onClick={saveNote}>💾</button>
-          <button onClick={cancelNote}>❌</button>
-          </>
-        ) : (
-          <>
-            {t.note && <p className="note">{t.note}</p>}
-            <button onClick={() => startEditingNote(t.id, t.note)}>
-              📝 Note
-            </button>
-          </>
-        )}
-      </div>
-    </li>
-  )
-}
+import SortableTaskItem from './components/SortableTaskItem';
+import TaskInput from './components/TaskInput';
+import Stats from './components/Stats';
+import Filters from './components/Filters';
 
 function App() {
   const [editingId, setEditingId] = useState(null);
@@ -323,61 +185,23 @@ function App() {
         <h1>Task Manager Pro</h1>
         <p className="subtitle">My improved React task manager</p>
 
-        <div className="task-input-section">
-          <input
-            type="text"
-            placeholder="Enter a new task..."
-            value={task}
-            onChange={(e) => setTask(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleAddTask();
-            }}
-          />
+        <TaskInput
+          task={task}
+          setTask={setTask}
+          dueDate={dueDate}
+          setDueDate={setDueDate}
+          priority={priority}
+          setPriority={setPriority}
+          handleAddTask={handleAddTask}
+        />
 
-          <input 
-            type="date"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-          />
-
-          <select
-            value={priority}
-            onChange={(e) => setPriority(e.target.value)}
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
-
-          <button onClick={handleAddTask}>Add</button>
-        </div>
-
-        <div className="stats-grid">
-          <div className="stat-card">
-            <h3>Total</h3>
-            <p>{totalTasks}</p>
-          </div>
-
-          <div className="stat-card">
-            <h3>Active</h3>
-            <p>{activeTasks}</p>
-          </div>
-
-          <div className="stat-card">
-            <h3>Completed</h3>
-            <p>{completedTasks}</p>
-          </div>
-
-          <div className="stat-card">
-            <h3>Overdue</h3>
-            <p>{overdueTasks}</p>
-          </div>
-
-          <div className="stat-card">
-            <h3>Progress</h3>
-            <p>{progress}%</p>
-          </div>
-        </div>
+        <Stats
+          totalTasks={totalTasks}
+          activeTasks={activeTasks}
+          completedTasks={completedTasks}
+          overdueTasks={overdueTasks}
+          progress={progress}
+        />
 
         <p style={{ marginTop: '16px', color: '#666' }}>
           {tasks.length} task{tasks.length !== 1 ? 's' : ''}
@@ -391,28 +215,7 @@ function App() {
           onChange={(e) => setSearch(e.target.value)}
         />
 
-        <div className="filters">
-          <button
-            className={filter === 'all' ? 'active-filter' : ''}
-            onClick={() => setFilter('all')}
-          >
-            All
-          </button>
-
-          <button
-            className={filter === 'active' ? 'active-filter' : ''}
-            onClick={() => setFilter('active')}
-          >
-            Active
-          </button>
-
-          <button
-            className={filter === 'completed' ? 'active-filter' : ''}
-            onClick={() => setFilter('completed')}
-          >
-            Completed
-          </button>
-        </div>
+        <Filters filter={filter} setFilter={setFilter} />
 
         {tasks.some((t) => t.completed) && (
           <button className="clear-btn" onClick={clearCompleted}>
