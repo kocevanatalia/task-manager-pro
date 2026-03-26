@@ -6,7 +6,6 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
-
 import SortableTaskItem from './components/SortableTaskItem';
 import TaskInput from './components/TaskInput';
 import Stats from './components/Stats';
@@ -40,6 +39,10 @@ function App() {
     return savedTasks ? JSON.parse(savedTasks) : [];
   });
 
+  useEffect(() => {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }, [tasks]);
+
   const handleAddTask = () => {
     if (task.trim() === '') return;
 
@@ -48,8 +51,8 @@ function App() {
       text: task,
       completed: false,
       note: '',
-      dueDate: dueDate,
-      priority: priority,
+      dueDate,
+      priority,
     };
 
     setTasks([...tasks, newTask]);
@@ -69,20 +72,6 @@ function App() {
     setTasks(updatedTasks);
   };
 
-  useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-  }, [tasks]);
-
-  const filteredTasks = tasks
-    .filter((t) => {
-      if (filter === 'active') return !t.completed;
-      if (filter === 'completed') return t.completed;
-      return true;
-    })
-    .filter((t) =>
-      t.text.toLowerCase().includes(search.toLowerCase())
-    );
-
   const clearCompleted = () => {
     setTasks(tasks.filter((t) => !t.completed));
   };
@@ -98,14 +87,14 @@ function App() {
     if (editText.trim() === '') return;
 
     const updatedTasks = tasks.map((t) =>
-      t.id === editingId 
-        ? { 
-            ...t, 
-            text: editText, 
+      t.id === editingId
+        ? {
+            ...t,
+            text: editText,
             dueDate: editDueDate,
             priority: editPriority,
-          } 
-      : t
+          }
+        : t
     );
 
     setTasks(updatedTasks);
@@ -113,7 +102,6 @@ function App() {
     setEditText('');
     setEditDueDate('');
     setEditPriority('medium');
-
   };
 
   const cancelEdit = () => {
@@ -147,21 +135,37 @@ function App() {
     if (!task.dueDate || task.completed) return false;
 
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
 
     const taskDate = new Date(task.dueDate);
     return taskDate < today;
   };
 
+  const filteredTasks = tasks
+    .filter((t) => {
+      if (filter === 'active') return !t.completed;
+      if (filter === 'completed') return t.completed;
+      return true;
+    })
+    .filter((t) => t.text.toLowerCase().includes(search.toLowerCase()));
+
   const handleDragEnd = (event) => {
-    const {active, over} = event;
+    const { active, over } = event;
 
     if (!over || active.id === over.id) return;
 
-    const oldIndex = tasks.findIndex((task) => task.id === active.id);
-    const newIndex = tasks.findIndex((task) => task.id === over.id);
+    const oldIndex = filteredTasks.findIndex((task) => task.id === active.id);
+    const newIndex = filteredTasks.findIndex((task) => task.id === over.id);
 
-    setTasks((tasks) => arrayMove(tasks, oldIndex, newIndex));
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reorderedFiltered = arrayMove(filteredTasks, oldIndex, newIndex);
+
+    const remainingTasks = tasks.filter(
+      (task) => !filteredTasks.some((ft) => ft.id === task.id)
+    );
+
+    setTasks([...remainingTasks, ...reorderedFiltered]);
   };
 
   const totalTasks = tasks.length;
@@ -174,16 +178,20 @@ function App() {
   return (
     <div className={darkMode ? 'app dark' : 'app'}>
       <div className="container">
-
         <button
           className="dark-toggle"
           onClick={() => setDarkMode(!darkMode)}
         >
-          {darkMode ? '☀️ Light' : '🌙 Dark'}
+          {darkMode ? 'Light mode' : 'Dark mode'}
         </button>
 
-        <h1>Task Manager Pro</h1>
-        <p className="subtitle">My improved React task manager</p>
+        <div className="hero">
+          <p className="eyebrow">Tasks</p>
+          <h1>A simple place to plan what matters.</h1>
+          <p className="subtitle">
+            Organize tasks, priorities, notes, and deadlines with clarity.
+          </p>
+        </div>
 
         <TaskInput
           task={task}
@@ -223,14 +231,17 @@ function App() {
           </button>
         )}
 
-        {tasks.length === 0 ? (
+        {filteredTasks.length === 0 ? (
           <p style={{ marginTop: '20px', color: '#999' }}>
-            No tasks yet. Add one above 👆
+            No tasks found 👆
           </p>
         ) : (
-          <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <DndContext
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
             <SortableContext
-              items={tasks.map((task) => task.id)}
+              items={filteredTasks.map((task) => task.id)}
               strategy={verticalListSortingStrategy}
             >
               <ul style={{ marginTop: '20px', listStyle: 'none', padding: 0 }}>

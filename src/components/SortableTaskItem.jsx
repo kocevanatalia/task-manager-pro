@@ -23,13 +23,8 @@ export default function SortableTaskItem({
   editPriority,
   setEditPriority,
 }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id: t.id });
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: t.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -64,6 +59,7 @@ export default function SortableTaskItem({
               }}
               autoFocus
             />
+
             <input
               type="date"
               value={editDueDate}
@@ -100,20 +96,29 @@ export default function SortableTaskItem({
         )}
       </div>
 
-      <div>
+      <div className="task-actions">
         {editingId === t.id ? (
           <>
-            <button onClick={saveEdit}>💾</button>
-            <button onClick={cancelEdit}>❌</button>
+            <button className="text-btn save-btn" onClick={saveEdit}>
+                Save
+            </button>
+            <button className="text-btn subtle-btn" onClick={cancelEdit}>
+                Cancel
+            </button>
           </>
         ) : (
           <>
             <button
-              onClick={() => startEditing(t.id, t.text, t.dueDate, t.priority)}
+              className="text-btn"
+              onClick={() =>
+                startEditing(t.id, t.text, t.dueDate, t.priority)
+              }
             >
-              ✏️
+              Edit
             </button>
-            <button onClick={() => handleDelete(t.id)}>🗑</button>
+            <button onClick={() => handleDelete(t.id)}>
+                Delete
+            </button>
           </>
         )}
       </div>
@@ -124,16 +129,24 @@ export default function SortableTaskItem({
             <textarea
               value={editNote}
               onChange={(e) => setEditNote(e.target.value)}
-              placeholder="Add a note..."
+              placeholder="Write a note..."
             />
-            <button onClick={saveNote}>💾</button>
-            <button onClick={cancelNote}>❌</button>
+            <div className="note-actions">
+                <button className="text-btn save-btn" onClick={saveNote}>
+                    Save
+                </button>
+                <button className="text-btn subtle-btn" onClick={cancelNote}>
+                    Cancel
+                </button>
+            </div>
           </>
         ) : (
           <>
             {t.note && <p className="note">{t.note}</p>}
-            <button onClick={() => startEditingNote(t.id, t.note)}>
-              📝 Note
+            <button 
+                className="note-btn"
+                onClick={() => startEditingNote(t.id, t.note)}>
+              {t.note ? 'Edit note' : 'Add note'}
             </button>
           </>
         )}
