@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 function App() {
   const [editingIndex, setEditingIndex] = useState(null);
   const [editText, setEditText] = useState('');
+  const [editNote, setEditNote] = useState('');
+  const [editingNoteIndex, setEditingNoteIndex] = useState(null);
 
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
@@ -25,9 +27,11 @@ function App() {
   const handleAddTask = () => {
     if (task.trim() === '') return;
 
+
     const newTask = {
       text: task,
       completed: false,
+      note: '',
     };
 
     setTasks([...tasks, newTask]);
@@ -92,6 +96,29 @@ function App() {
   const cancelEdit = () => {
     setEditingIndex(null);
     setEditText('');
+  };
+
+  const startEditingNote = (index, currentNote) => {
+    setEditingNoteIndex(index);
+    setEditNote(currentNote || '');
+  };
+
+  const saveNote = () => {
+    const updatedTasks = tasks.map((t,i) => {
+      if (i === editingNoteIndex) {
+        return {...t, note: editNote};
+      }
+      return t;
+    });
+
+    setTasks(updatedTasks);
+    setEditingNoteIndex(null);
+    setEditNote('');
+  };
+
+  const cancelNote = () => {
+    setEditingNoteIndex(null);
+    setEditNote('');
   };
 
   return (
@@ -203,6 +230,28 @@ function App() {
                       <button onClick={() => handleDelete(index)}>🗑</button>
                     </>
                   )}
+                </div>
+
+                <div className="note-section">
+                  {editingNoteIndex === index ? (
+                    <>
+                    <textarea
+                      value={editNote}
+                      onChange={(e) => setEditNote(e.target.value)}
+                      placeholder="Add a note..."
+                      />
+                      <button onClick={saveNote}>💾</button>
+                      <button onClick={cancelNote}>❌</button>
+                    </>
+                  ) : (
+                    <>
+                      {t.note && <p className="note">{t.note}</p>}
+                      <button onClick={() => startEditingNote(index, t.note)}>
+                        📝 Note
+                      </button>
+                    </>
+                  )}
+                  
                 </div>
 
               </li>
