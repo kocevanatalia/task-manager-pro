@@ -1,16 +1,61 @@
-# React + Vite
+# 📝 Task Manager Pro
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern and interactive task manager built with React.
+This app allows users to create, edit, organize, and track tasks efficiently with a clean UI and useful productivity features.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 Features
 
-## React Compiler
+* ✅ Add, edit, and delete tasks
+* 📅 Set due dates for tasks
+* ⚡ Assign priority levels (low, medium, high)
+* 📝 Add notes to tasks
+* 🔍 Search tasks instantly
+* 🎯 Filter tasks (all / active / completed)
+* 📊 Real-time statistics (progress, completed, overdue)
+* 🌙 Dark mode toggle
+* 🔄 Drag & drop reordering
+* 💾 Data persistence using localStorage
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🛠️ Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+* React (functional components + hooks)
+* JavaScript (ES6+)
+* CSS
+* @dnd-kit (drag and drop)
+
+---
+
+## 📂 Project Structure
+
+```
+src/
+  components/
+    Filters.jsx
+    SortableTaskItem.jsx
+    Stats.jsx
+    TaskInput.jsx
+  App.jsx
+  index.css
+```
+
+---
+
+## 💡 Future Improvements
+
+* 📱 Mobile responsiveness improvements
+* 🎨 UI/UX enhancements
+* ☁️ Backend integration (save tasks online)
+* 👤 User authentication
+* 📅 Calendar view
+
+---
+
+## 👩‍💻 Author
+
+Ljubica Natalia Koceva
+
+
