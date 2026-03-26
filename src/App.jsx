@@ -252,6 +252,13 @@ function App() {
     setTasks((tasks) => arrayMove(tasks, oldIndex, newIndex));
   };
 
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter((t) => t.completed).length;
+  const activeTasks = tasks.filter((t) => !t.completed).length;
+  const overdueTasks = tasks.filter((t) => isOverdue(t)).length;
+  const progress =
+    totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+
   return (
     <div className={darkMode ? 'app dark' : 'app'}>
       <div className="container">
@@ -283,6 +290,33 @@ function App() {
             onChange={(e) => setDueDate(e.target.value)}
           />
           <button onClick={handleAddTask}>Add</button>
+        </div>
+
+        <div className="stats-grid">
+          <div className="stat-card">
+            <h3>Total</h3>
+            <p>{totalTasks}</p>
+          </div>
+
+          <div className="stat-card">
+            <h3>Active</h3>
+            <p>{activeTasks}</p>
+          </div>
+
+          <div className="stat-card">
+            <h3>Completed</h3>
+            <p>{completedTasks}</p>
+          </div>
+
+          <div className="stat-card">
+            <h3>Overdue</h3>
+            <p>{overdueTasks}</p>
+          </div>
+
+          <div className="stat-card">
+            <h3>Progress</h3>
+            <p>{progress}%</p>
+          </div>
         </div>
 
         <p style={{ marginTop: '16px', color: '#666' }}>
