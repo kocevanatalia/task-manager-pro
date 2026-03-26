@@ -284,3 +284,38 @@ h1 {
 .dark .stat-card p {
   color: white;
 }
+
+.edit-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.edit-fields input[type="date"] {
+  max-width: 160px;
+}
+
+.priority-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.priority-badge.low {
+  background-color: #e8f7ec !important;
+  color: #1f7a3d !important;
+}
+
+.priority-badge.medium {
+  background-color: #fff4db !important;
+  color: #a56a00 !important;
+}
+
+.priority-badge.high {
+  background-color: #fde8e8 !important;
+  color: #b42318 !important;
+}

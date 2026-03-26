@@ -26,6 +26,10 @@ function SortableTaskItem({
   cancelNote,
   startEditingNote,
   isOverdue,
+  editDueDate,
+  setEditDueDate,
+  editPriority,
+  setEditPriority,
 }) {
   const {
     attributes,
@@ -58,25 +62,52 @@ function SortableTaskItem({
         />
 
         {editingId === t.id ? (
-          <input
-            value={editText}
-            onChange={(e) => setEditText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') saveEdit();
-              if (e.key === 'Escape') cancelEdit();
-            }}
-            autoFocus
-          />
+          <div className="edit-fields">
+            <input
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') saveEdit();
+                if (e.key === 'Escape') cancelEdit();
+              }}
+              autoFocus
+            />
+            <input
+              type="date"
+              value={editDueDate}
+              onChange={(e) => setEditDueDate(e.target.value)}
+            />
+
+            <select 
+              value={editPriority}
+              onChange={(e) => setEditPriority(e.target.value)}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+
+          </div>
         ) : (
           <div>
             <span className={t.completed ? 'completed' : ''}>
               {t.text}
             </span>
+
+            {t.priority && (
+              <div>
+                <span className={`priority-badge ${t.priority}`}>
+                  {t.priority}
+                </span>
+              </div>
+            )}
+
             {t.dueDate && (
               <p className={isOverdue(t) ? 'due-date overdue' : 'due-date'}>
                 Due: {t.dueDate} {isOverdue(t) && '• Overdue'}
               </p>
             )}
+    
           </div>
         )}
       </div>
@@ -89,7 +120,7 @@ function SortableTaskItem({
           </>
         ) : (
           <>
-            <button onClick={() => startEditing(t.id, t.text)}>✏️</button>
+            <button onClick={() => startEditing(t.id, t.text, t.dueDate, t.priority)}>✏️</button>
             <button onClick={() => handleDelete(t.id)}>🗑</button>
           </>
         )}
@@ -122,6 +153,8 @@ function SortableTaskItem({
 function App() {
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState('');
+  const [editDueDate, setEditDueDate] = useState('');
+  const [editPriority, setEditPriority] = useState('medium');
   const [editNote, setEditNote] = useState('');
   const [editingNoteId, setEditingNoteId] = useState(null);
 
@@ -138,6 +171,7 @@ function App() {
   const [filter, setFilter] = useState('all');
   const [task, setTask] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [priority, setPriority] = useState('medium');
 
   const [tasks, setTasks] = useState(() => {
     const savedTasks = localStorage.getItem('tasks');
@@ -153,11 +187,13 @@ function App() {
       completed: false,
       note: '',
       dueDate: dueDate,
+      priority: priority,
     };
 
     setTasks([...tasks, newTask]);
     setTask('');
     setDueDate('');
+    setPriority('medium');
   };
 
   const handleDelete = (id) => {
@@ -189,26 +225,40 @@ function App() {
     setTasks(tasks.filter((t) => !t.completed));
   };
 
-  const startEditing = (id, currentText) => {
+  const startEditing = (id, currentText, currentDueDate, currentPriority) => {
     setEditingId(id);
     setEditText(currentText);
+    setEditDueDate(currentDueDate || '');
+    setEditPriority(currentPriority || 'medium');
   };
 
   const saveEdit = () => {
     if (editText.trim() === '') return;
 
     const updatedTasks = tasks.map((t) =>
-      t.id === editingId ? { ...t, text: editText } : t
+      t.id === editingId 
+        ? { 
+            ...t, 
+            text: editText, 
+            dueDate: editDueDate,
+            priority: editPriority,
+          } 
+      : t
     );
 
     setTasks(updatedTasks);
     setEditingId(null);
     setEditText('');
+    setEditDueDate('');
+    setEditPriority('medium');
+
   };
 
   const cancelEdit = () => {
     setEditingId(null);
     setEditText('');
+    setEditDueDate('');
+    setEditPriority('medium');
   };
 
   const startEditingNote = (id, currentNote) => {
@@ -289,6 +339,16 @@ function App() {
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
           />
+
+          <select
+            value={priority}
+            onChange={(e) => setPriority(e.target.value)}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+
           <button onClick={handleAddTask}>Add</button>
         </div>
 
@@ -390,6 +450,10 @@ function App() {
                     cancelNote={cancelNote}
                     startEditingNote={startEditingNote}
                     isOverdue={isOverdue}
+                    editDueDate={editDueDate}
+                    setEditDueDate={setEditDueDate}
+                    editPriority={editPriority}
+                    setEditPriority={setEditPriority}
                   />
                 ))}
               </ul>
