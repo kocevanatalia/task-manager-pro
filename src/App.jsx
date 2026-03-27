@@ -186,11 +186,8 @@ function App() {
         </button>
 
         <div className="hero">
-          <p className="eyebrow">Tasks</p>
-          <h1>A simple place to plan what matters.</h1>
-          <p className="subtitle">
-            Organize tasks, priorities, notes, and deadlines with clarity.
-          </p>
+          <h1>Tasks</h1>
+          <p className="subtitle">A quiet space to keep things in order.</p>
         </div>
 
         <TaskInput
@@ -226,7 +223,7 @@ function App() {
         <Filters filter={filter} setFilter={setFilter} />
 
         {tasks.some((t) => t.completed) && (
-          <button className="clear-btn" onClick={clearCompleted}>
+          <button className="clear-link" onClick={clearCompleted}>
             Clear completed
           </button>
         )}

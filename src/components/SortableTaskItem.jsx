@@ -31,125 +31,139 @@ export default function SortableTaskItem({
     transition,
   };
 
+  const isEditingTask = editingId === t.id;
+  const isEditingTaskNote = editingNoteId === t.id;
+
   return (
     <li ref={setNodeRef} style={style} className="task-item">
-      <div className="left">
-        <span
-          {...attributes}
-          {...listeners}
-          style={{ cursor: 'grab', marginRight: '10px' }}
-        >
-          ☰
-        </span>
+      <div className="task-main">
+        <div className="left">
+          <span
+            {...attributes}
+            {...listeners}
+            className="drag-handle"
+            title="Drag task"
+          >
+            ☰
+          </span>
 
-        <input
-          type="checkbox"
-          checked={t.completed}
-          onChange={() => toggleComplete(t.id)}
-        />
+          <input
+            type="checkbox"
+            checked={t.completed}
+            onChange={() => toggleComplete(t.id)}
+          />
 
-        {editingId === t.id ? (
-          <div className="edit-fields">
-            <input
-              value={editText}
-              onChange={(e) => setEditText(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') saveEdit();
-                if (e.key === 'Escape') cancelEdit();
-              }}
-              autoFocus
-            />
+          <div className="task-content">
+            {isEditingTask ? (
+              <div className="edit-fields">
+                <input
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') saveEdit();
+                    if (e.key === 'Escape') cancelEdit();
+                  }}
+                  autoFocus
+                />
 
-            <input
-              type="date"
-              value={editDueDate}
-              onChange={(e) => setEditDueDate(e.target.value)}
-            />
+                <input
+                  type="date"
+                  value={editDueDate}
+                  onChange={(e) => setEditDueDate(e.target.value)}
+                />
 
-            <select
-              value={editPriority}
-              onChange={(e) => setEditPriority(e.target.value)}
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
-          </div>
-        ) : (
-          <div>
-            <span className={t.completed ? 'completed' : ''}>{t.text}</span>
-
-            {t.priority && (
-              <div>
-                <span className={`priority-badge ${t.priority}`}>
-                  {t.priority}
-                </span>
+                <select
+                  value={editPriority}
+                  onChange={(e) => setEditPriority(e.target.value)}
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
               </div>
-            )}
+            ) : (
+              <>
+                <span className={t.completed ? 'completed task-title' : 'task-title'}>
+                  {t.text}
+                </span>
 
-            {t.dueDate && (
-              <p className={isOverdue(t) ? 'due-date overdue' : 'due-date'}>
-                Due: {t.dueDate} {isOverdue(t) && '• Overdue'}
-              </p>
+                {t.priority && (
+                  <div>
+                    <span className={`priority-badge ${t.priority}`}>
+                      {t.priority}
+                    </span>
+                  </div>
+                )}
+
+                {t.dueDate && (
+                  <p className={isOverdue(t) ? 'due-date overdue' : 'due-date'}>
+                    Due: {t.dueDate}
+                    {isOverdue(t) && ' • Overdue'}
+                  </p>
+                )}
+
+                {!isEditingTaskNote && t.note && (
+                  <p className="note">{t.note}</p>
+                )}
+
+                {isEditingTaskNote && (
+                  <div className="note-editor">
+                    <textarea
+                      value={editNote}
+                      onChange={(e) => setEditNote(e.target.value)}
+                      placeholder="Write a note..."
+                    />
+                    <div className="note-actions">
+                      <button className="action primary" onClick={saveNote}>
+                        Save
+                      </button>
+                      <button className="action" onClick={cancelNote}>
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
-        )}
-      </div>
+        </div>
 
-      <div className="task-actions">
-        {editingId === t.id ? (
-          <>
-            <button className="text-btn save-btn" onClick={saveEdit}>
+        <div className="task-side">
+          {isEditingTask ? (
+            <div className="task-actions">
+              <button className="action primary" onClick={saveEdit}>
                 Save
-            </button>
-            <button className="text-btn subtle-btn" onClick={cancelEdit}>
+              </button>
+              <button className="action" onClick={cancelEdit}>
                 Cancel
-            </button>
-          </>
-        ) : (
-          <>
-            <button
-              className="text-btn"
-              onClick={() =>
-                startEditing(t.id, t.text, t.dueDate, t.priority)
-              }
-            >
-              Edit
-            </button>
-            <button onClick={() => handleDelete(t.id)}>
-                Delete
-            </button>
-          </>
-        )}
-      </div>
-
-      <div className="note-section">
-        {editingNoteId === t.id ? (
-          <>
-            <textarea
-              value={editNote}
-              onChange={(e) => setEditNote(e.target.value)}
-              placeholder="Write a note..."
-            />
-            <div className="note-actions">
-                <button className="text-btn save-btn" onClick={saveNote}>
-                    Save
-                </button>
-                <button className="text-btn subtle-btn" onClick={cancelNote}>
-                    Cancel
-                </button>
+              </button>
             </div>
-          </>
-        ) : (
-          <>
-            {t.note && <p className="note">{t.note}</p>}
-            <button 
-                className="note-btn"
-                onClick={() => startEditingNote(t.id, t.note)}>
-              {t.note ? 'Edit note' : 'Add note'}
-            </button>
-          </>
-        )}
+          ) : (
+            <>
+              <button
+                className="note-link"
+                onClick={() => startEditingNote(t.id, t.note)}
+              >
+                {t.note ? 'Edit note' : 'Add note'}
+              </button>
+
+              <div className="task-actions">
+                <button
+                  className="action"
+                  onClick={() => startEditing(t.id, t.text, t.dueDate, t.priority)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="action danger-soft"
+                  onClick={() => handleDelete(t.id)}
+                >
+                  Remove
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </li>
   );
