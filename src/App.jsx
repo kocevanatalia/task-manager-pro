@@ -186,8 +186,11 @@ function App() {
         </button>
 
         <div className="hero">
-          <h1>Tasks</h1>
-          <p className="subtitle">A quiet space to keep things in order.</p>
+          <p className="hero-label">Personal planner</p>
+          <h1>Daily Desk</h1>
+          <p className="subtitle">
+            Everything you need to stay organized.
+          </p>
         </div>
 
         <TaskInput
