@@ -1,7 +1,12 @@
 # 📝 Task Manager Pro
 
-A modern and interactive task manager built with React.
+A modern and interactive task management application built with React.
 This app allows users to create, edit, organize, and track tasks efficiently with a clean UI and useful productivity features.
+
+---
+## 🎯 Project Evolution
+This project is an improved version of a previous task manager built with vanilla JavaScript.  
+It focuses on better structure, scalability, and user experience using React.
 
 ---
 
